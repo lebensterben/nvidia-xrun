@@ -2,11 +2,17 @@
 These utility scripts aim to make the life easier for nvidia cards users.
 It started with a revelation that bumblebee in current state offers very poor performance. This solution offers a bit more complicated procedure but offers a full GPU utilization(in terms of linux drivers)
 
+## Installation on Clear Linux
+
+```sh
+sudo ./install.sh
+```
+
 ## Usage:
   1. switch to free tty
-  1. login
-  1. run `nvidia-xrun [app]`
-  1. enjoy
+  2. login
+  3. run `nvidia-xrun [app]`
+  4. enjoy
 
 Currently sudo is required as the script needs to wake up GPU, modprobe the nvidia driver and perform cleanup afterwards.
 
@@ -17,24 +23,31 @@ kernel PM features to keep the card switched off.
 
 The service can be enabled with this command:
 
-```
-# systemctl enable nvidia-xrun-pm
+```sh
+systemctl enable nvidia-xrun-pm
 ```
 
 When the nvidia-xrun command is used, the device is added again to the tree so that the nvidia module can be loaded properly: nvidia-xrun will remove the device and enable PM again after the application terminates.
 
 ## Structure
-* **nvidia-xrun** - uses following dir structure:
-* **/usr/bin/nvidia-xrun** - the executable script
-* **/etc/X11/nvidia-xorg.conf** - the main X confing file
-* **/etc/X11/xinit/nvidia-xinitrc** - xinitrc config file. Contains the setting of provider output source
-* **/etc/X11/xinit/nvidia-xinitrc.d** - custom xinitrc scripts directory
-* **/etc/X11/nvidia-xorg.conf.d** - custom X config directory
-* **/etc/systemd/system/nvidia-xrun-pm.service** systemd service
-* **/etc/default/nvidia-xrun** - nvidia-xrun config file
-* **/usr/share/xsessions/nvidia-xrun-openbox.desktop** - xsession file for openbox
-* **/usr/share/xsessions/nvidia-xrun-plasma.desktop** - xsession file for plasma
-* **[OPTIONAL] $XDG_CONFIG_HOME/X11/nvidia-xinitrc** - user-level custom xinit script file. You can put here your favourite window manager for example
+**nvidia-xrun** - uses following dir structure:
+* Executable script
+  * **/usr/local/bin/nvidia-xrun** - the executable script
+* Configuration file for **nvidia-xrun**
+  * **/etc/default/nvidia-xrun** - nvidia-xrun config file
+* System-wide configuration files for **X11**
+  * **/etc/X11/nvidia-xorg.conf** - the main X confing file
+  * **/etc/X11/nvidia-xorg.conf.d** - custom X config directory
+  * **/etc/X11/xinit/nvidia-xinitrc** - xinitrc config file. Contains the setting of provider output source
+  * **/etc/X11/xinit/nvidia-xinitrc.d** - custom xinitrc scripts directory
+* **systemd** service file
+  * **/etc/systemd/system/nvidia-xrun-pm.service** systemd service
+* **xsession** files
+  * **/usr/share/xsessions/nvidia-xrun-gnome.desktop** - xsession file for gnome
+  * **/usr/share/xsessions/nvidia-xrun-xfce4.desktop** - xsession file for xfce4
+  * **/usr/share/xsessions/nvidia-xrun-plasma.desktop** - xsession file for plasma
+* [OPTIONAL] user-level custom xinit script file.
+  * **$XDG_CONFIG_HOME/X11/nvidia-xinitrc** - You can put here your favourite window manager for example
 
 
 ## Setting the right bus id
@@ -69,29 +82,20 @@ usually displayed right before the graphic card.
 ## Automatically run window manager
 For convenience you can create `nano ~/.nvidia-xinitrc` and put there your favourite window manager:
 
-    if [ $# -gt 0 ]; then
-        $*
-    else
-        openbox-session
-    #   startkde
-    fi
-
+```sh
+if [ $# -gt 0 ]; then
+  $*
+else
+  gnome-session
+  #xfce4-session
+  #startkde
+fi
+```
 
 With this you do not need to specify the app and you can simply run:
 
-    nvidia-xrun
-
-## AUR Package
-The Arch Linux User Repository package can be found [here](https://aur.archlinux.org/packages/nvidia-xrun/).
-
-## COPR Repository for Enterprise Linux, Fedora, Mageia, and openSUSE
-The RPM packages and repository details for all supported distributions can be found on the [ekultails/nvidia-xrun](https://copr.fedorainfracloud.org/coprs/ekultails/nvidia-xrun/) COPR overview page.
-
-### Install (Enterprise Linux and Fedora)
-
-```
-sudo dnf copr enable ekultails/nvidia-xrun
-sudo dnf install nvidia-xrun
+```sh
+nvidia-xrun
 ```
 
 ## Troubleshooting
